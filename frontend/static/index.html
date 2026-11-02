@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <!-- pour bon affichage sur telephone -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bibliothèque de Farah, Sofija & Melissa - Moteur de recherche</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- en tete -->
+  <header>
+    <h1>Bibliothèque de Farah, Melissa & Sofija</h1>
+
+    <form id="form-recherche">
+      <input id="champ" type="text" placeholder="Rechercher un livre..." required>
+
+      <div class="options">
+        <label><input type="radio" name="mode" value="keyword" checked> Mot-clé</label>
+        <label><input type="radio" name="mode" value="regex"> RegEx</label>
+
+        <!-- Actif seulement en mode RegEx -->
+        <select id="scope" disabled>
+          <option value="index">dans l'index (rapide)</option>
+          <option value="text">dans le texte (lent)</option>
+        </select>
+      </div>
+
+      <button type="submit">Rechercher</button>
+    </form>
+  </header>
+
+  <main>
+    <!-- VUE 1 : accueil -->
+    <section id="vue-accueil">
+      <p class="placeholder">Tapez des mots ou une expression régulière pour chercher parmi les livres.</p>
+    </section>
+
+    <!-- VUE 2 : résultats -->
+    <section id="vue-resultats" hidden>
+      <p id="infos"></p>
+
+      <div class="colonnes">
+        <div>
+          <h2>Résultats</h2>
+          <ol id="liste-resultats"></ol>
+        </div>
+
+        <aside>
+          <h2>Suggestions</h2>
+          <ul id="liste-suggestions"></ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- VUE 3 : détail d'un livre -->
+    <section id="vue-livre" hidden>
+      <button id="retour" type="button">&larr; Retour aux résultats</button>
+      <div id="detail-livre"></div>
+    </section>
+
+    <!-- VUE 4 : erreur ou aucun résultat -->
+    <section id="vue-erreur" hidden>
+      <p id="message-erreur" class="placeholder"></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
