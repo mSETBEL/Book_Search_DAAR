@@ -19,7 +19,7 @@ services:
       # Les données de PostgreSQL : survivent à l'arrêt des conteneurs
       - pgdata:/var/lib/postgresql/data
       # Scripts SQL exécutés automatiquement au PREMIER démarrage (volume vide)
-      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ./database:/docker-entrypoint-initdb.d:ro
     healthcheck:
       # "Prêt" = PostgreSQL accepte les connexions
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
@@ -71,4 +71,4 @@ volumes:
 
 networks:
   interne:
-    driver: user-defined 
+    driver: bridge #user-defined 
