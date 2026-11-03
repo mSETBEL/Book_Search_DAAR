@@ -10,6 +10,7 @@ htmlcov/
 venv/
 .venv/
 env/
+.env/
 
 # Django
 *.sqlite3
@@ -21,8 +22,7 @@ local_settings.py
 .env
 
 # Data (too large for git and for the 30 MB package)
-data/raw/
-data/clean/
+database/books/
 *.pkl
 *.npy
 *.npz
