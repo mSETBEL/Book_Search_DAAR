@@ -18,7 +18,7 @@ from pathlib import Path
 
 import psycopg
 
-MIN_WORDS = 10_000  # same rule as the CHECK constraint in init.sql
+MIN_WORDS = 10000  # same rule as the CHECK constraint in init.sql
 WORD_RE = re.compile(r"[^\W\d_]+")  # runs of letters (accents included)
 
 
@@ -42,7 +42,7 @@ def split_gutenberg(text: str):
                 if lines[i].startswith("*** END OF")), len(lines))
     return header, lines[body_from:end]
 
-
+# get the metadata 
 def header_field(header, key):
     prefix = key + ":"
     for line in header:
