@@ -95,7 +95,7 @@ def load_book(conn, path: Path, books_dir: Path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dir", default=os.environ.get("BOOKS_DIR", "/data/books"))
+    ap.add_argument("--dir", default=os.environ.get("BOOKS_DIR", "/database/books"))
     ap.add_argument("--limit", type=int, default=None)
     args = ap.parse_args()
 
