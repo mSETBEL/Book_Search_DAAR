@@ -1,0 +1,80 @@
+/* Style "wireframe" : gris, bordures en pointillés, aucune décoration.
+   On embellira plus tard, une fois la structure validée. */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  color: #222;
+  background: #fff;
+}
+
+header, main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+header { border-bottom: 2px dashed #999; }
+
+h1 { margin: 0 0 12px; font-size: 1.5rem; }
+h2 { font-size: 1.1rem; margin: 0 0 8px; }
+
+/* --- Formulaire --- */
+form { display: flex; flex-direction: column; gap: 10px; }
+
+input[type="text"], select, button {
+  font-size: 1rem;
+  padding: 10px;            /* zones assez grandes pour un doigt */
+  border: 1px solid #888;
+  border-radius: 4px;
+  background: #fff;
+}
+
+button { background: #ddd; cursor: pointer; }
+
+.options { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+/* --- Blocs de contenu --- */
+.placeholder {
+  border: 2px dashed #bbb;
+  padding: 24px;
+  text-align: center;
+  color: #666;
+}
+
+#infos { color: #666; font-size: 0.9rem; }
+
+/* Sur téléphone : une seule colonne */
+.colonnes { display: flex; flex-direction: column; gap: 16px; }
+
+ol, ul { margin: 0; padding-left: 20px; }
+
+li { margin-bottom: 8px; }
+
+/* Chaque résultat est un bouton cliquable qui ressemble à une carte */
+.carte {
+  width: 100%;
+  text-align: left;
+  background: #f4f4f4;
+  border: 1px dashed #999;
+}
+
+.carte small { display: block; color: #666; margin-top: 4px; }
+
+aside {
+  border: 2px dashed #bbb;
+  padding: 12px;
+}
+
+#detail-livre { margin-top: 16px; border: 2px dashed #bbb; padding: 16px; }
+
+/* Sur écran large : résultats à gauche, suggestions à droite */
+@media (min-width: 700px) {
+  form { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  #champ { flex: 1 1 300px; }
+  .colonnes { flex-direction: row; }
+  .colonnes > div { flex: 2; }
+  aside { flex: 1; }
+}
