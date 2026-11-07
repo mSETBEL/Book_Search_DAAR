@@ -1,5 +1,7 @@
 import re
+import nltk
 from nltk.corpus import stopwords
+nltk.download('stopwords')
 
 
 _WORD_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*")

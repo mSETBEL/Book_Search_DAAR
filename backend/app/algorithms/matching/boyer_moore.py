@@ -49,7 +49,7 @@ def preprocess_case2(shift, bpos, pat, m):
             j = bpos[j]
 
 
-def search(text, pat):
+def search(text, pat) -> int:
 	"""Boyer-Moore string matching algorithm using bad character and good suffix heuristics."""
 
     # s is shift of the pattern with respect to text
@@ -75,4 +75,3 @@ def search(text, pat):
 			s += (m - bad_char[ord(text[s + m])] if s + m < n else 1)
 		else:
 			s+= max(shift[j + 1], j - bad_char[ord(text[s + j])])
-

@@ -1,5 +1,16 @@
 # Book_Search_DAAR 
 
+## Pré-requis
+- Python 3 avec fastapi, uvicorn, 
+
+
+python -m venv venv
+source venv/bin/activate 
+pip install fastapi uvicorn
+pip freeze > requirements.txt
+
+
+
 lien vers rapport : 
 https://www.overleaf.com/project/6adbb2fed75dded5e5cea2a1/share#1135ca6eb90859bd6edad5feb742bd1c998719aae1a2b5d9 
 
@@ -25,3 +36,13 @@ https://www.overleaf.com/project/6adbb2fed75dded5e5cea2a1/share#1135ca6eb90859bd
   - Pertinence : subjectif, tester si on aime les résultats
   - Exemples de centralité sur un échantillon de livres
   
+
+scripts avant de lancer 
+
+catalog, download
+
+docker compose run --rm backend python scripts/load_books.py
+
+lancer, depuis backend/ : 
+
+DATABASE_URL=postgresql://daar:MOTDEPASSE@localhost:5432/daar BOOKS_DIR=../data/books uvicorn app.main:app --reload

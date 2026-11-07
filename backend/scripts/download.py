@@ -9,7 +9,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 BOOKS_DIR = HERE.parent.parent / "database" / "books"
 DATA_FILE = BOOKS_DIR / "catalogue.json"
 
-PAUSE_SECONDS = 3  # be polite with gutenberg.org: one file at a time, with a pause
+PAUSE_SECONDS = 2  # be polite with gutenberg.org: one file at a time, with a pause
 
 def read_books(fichier: pathlib.Path = DATA_FILE) -> dict:
     # dictionary gutenberg_id : url

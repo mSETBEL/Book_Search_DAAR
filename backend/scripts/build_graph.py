@@ -2,7 +2,7 @@ import argparse
 import os
 import time
 
-from algorithms.jaccard import *
+from app.algorithms.ranking.jaccard import *
 import psycopg
 
 def main():
