@@ -206,3 +206,8 @@ def api_book_text(book_id: int):
       return erreur("not_found", f"Aucun livre avec l'identifiant {book_id}.", status=404)
     
     return {"id": book_id, "text": lire_livre(row["file_path"])}
+
+
+@app.get("/api/health")
+def api_health():
+    return {"status": "ok"}
