@@ -1,55 +1,9 @@
-// ============================================================
-// 1. DONNÉES FACTICES (mock)
-//    Même format que la future API. Valeurs inventées.
-// ============================================================
 
-const MOCK_RECHERCHE = {
-  query: "whale",
-  mode: "keyword",
-  total: 3,
-  time_ms: 12.4,
-  results: [
-    { id: 42, title: "Moby Dick; Or, The Whale", author: "Herman Melville", occurrences: 1226, centrality: 0.0031, score: 0.94 },
-    { id: 17, title: "Twenty Thousand Leagues under the Sea", author: "Jules Verne", occurrences: 58, centrality: 0.0027, score: 0.61 },
-    { id: 88, title: "The Sea-Wolf", author: "Jack London", occurrences: 21, centrality: 0.0019, score: 0.33 }
-  ],
-  suggestions: [
-    { id: 187, title: "Captains Courageous", author: "Rudyard Kipling", distance: 0.41 },
-    { id: 203, title: "Treasure Island", author: "Robert Louis Stevenson", distance: 0.47 }
-  ]
-};
-
-const MOCK_LIVRE = {
-  id: 42,
-  title: "Moby Dick; Or, The Whale",
-  author: "Herman Melville",
-  word_count: 215000,
-  pagerank: 0.0031,
-  neighbors: [
-    { id: 17, title: "Twenty Thousand Leagues under the Sea", distance: 0.38 },
-    { id: 187, title: "Captains Courageous", distance: 0.41 }
-  ]
-};
-
-
-// ============================================================
-// 2. ACCÈS AU SERVEUR
-//    Le SEUL endroit à modifier quand le vrai serveur sera prêt.
-// ============================================================
-
+// accès serveur 
 async function api(chemin) {
-  // PLUS TARD, remplacer tout le contenu par :
-  //   const reponse = await fetch("/api" + chemin);
-  //   return await reponse.json();
-
-  if (chemin.startsWith("/books/")) return MOCK_LIVRE;
-  return MOCK_RECHERCHE;
+    const reponse = await fetch("/api" + chemin);
+    return await reponse.json();
 }
-
-
-// ============================================================
-// 3. OUTILS
-// ============================================================
 
 // Affiche une seule vue et cache les autres
 function afficher(idVue) {
@@ -65,11 +19,6 @@ function echapper(texte) {
   div.textContent = texte;
   return div.innerHTML;
 }
-
-
-// ============================================================
-// 4. RECHERCHE
-// ============================================================
 
 const form = document.getElementById("form-recherche");
 const champ = document.getElementById("champ");
@@ -141,11 +90,6 @@ function afficherResultats(donnees) {
 
   afficher("vue-resultats");
 }
-
-
-// ============================================================
-// 5. DÉTAIL D'UN LIVRE
-// ============================================================
 
 // Un seul écouteur pour tous les boutons .carte de la page
 document.addEventListener("click", async (evenement) => {

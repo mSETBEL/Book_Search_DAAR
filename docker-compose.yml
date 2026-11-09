@@ -19,7 +19,7 @@ services:
       # Les données de PostgreSQL : survivent à l'arrêt des conteneurs
       - pgdata:/var/lib/postgresql/data
       # Scripts SQL exécutés automatiquement au PREMIER démarrage (volume vide)
-      - ./database:/docker-entrypoint-initdb.d:ro
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     healthcheck:
       # "Prêt" = PostgreSQL accepte les connexions
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
@@ -39,35 +39,40 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       BOOKS_DIR: /data/books
     volumes:
-      # Textes des livres : data/books/
+      # Textes des livres : database/books/
       # visible dans le conteneur sous /data/books
       # - books:/data/books
-      - ./data/books:/data/books
+      - ./database/books:/data/books
     depends_on:
       db:
         condition: service_healthy   # attend que la base soit prête
+    healthcheck:
+      # "Prêt" = l'API répond à /api/health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000/api/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks: [interne]
     # Pas de "ports" : l'API n'est joignable que par le front
 
   # ---------- 3. CLIENT WEB ----------
   frontend:
+    depends_on:
+      backend:
+        condition: service_healthy
     build: ./frontend
     # image: daar-front:latest
     restart: unless-stopped
     ports:
       # Seul port ouvert vers l'extérieur. Si 80 est déjà pris : "8080:80"
       - "80:80"
-    depends_on:
-      - backend
     networks: [interne]
 
 volumes:
   pgdata:
     # Volume persistant pour la base de données
     driver: local
-  books:
-    # Volume pour les textes des livres
-    driver: local
+  
 
 networks:
   interne:

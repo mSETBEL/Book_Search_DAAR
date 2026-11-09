@@ -1,0 +1,7 @@
+fastapi
+nltk
+requests
+uvicorn[standard]
+psycopg[binary]
+python-dotenv
+numpy

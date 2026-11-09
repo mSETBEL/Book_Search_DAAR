@@ -19,4 +19,4 @@ while url and len(catalogue) < 20:
     url = page["next"]
     time.sleep(2)  # pour ne pas surcharger le serveur
 
-json.dump(catalogue, open("data/books/catalogue.json", "w"), indent=1)
+json.dump(catalogue, open("database/books/catalogue.json", "w"), indent=1)

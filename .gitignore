@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Django
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+staticfiles/
+media/
+local_settings.py
+.env
+
+# Data (too large for git and for the 30 MB package)
+database/books/
+*.pkl
+*.npy
+*.npz
+
+# Benchmark output (regenerate with benchmarks/run_all.py)
+# benchmarks/results/   # uncomment if you don't want charts in git
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+npm-debug.log*
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Packaging
+*.zip
+*.tar.gz
+*.7z
