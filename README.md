@@ -41,8 +41,15 @@ scripts avant de lancer
 
 catalog, download
 
-docker compose run --rm backend python scripts/load_books.py
 
 lancer, depuis backend/ : 
 
 DATABASE_URL=postgresql://daar:MOTDEPASSE@localhost:5432/daar BOOKS_DIR=../data/books uvicorn app.main:app --reload
+
+commandes:
+```bash
+docker compose up --build -d
+docker compose run --rm backend python scripts/load_books.py
+```
+
+Pour arrêter les conteneurs sans supprimer les données de la base : `docker compose down`

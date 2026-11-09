@@ -1,7 +1,7 @@
 """
-Lancer en local (depuis back/) :
-    DATABASE_URL=postgresql://daar:change_moi@localhost:5432/daar BOOKS_DIR=../data/books \
-    uvicorn main:app --reload
+Lancer en local (depuis backend/) :
+    DATABASE_URL=postgresql://daar:mdpTest@localhost:5432/daar BOOKS_DIR=../data/books \
+    STATIC_DIR=../frontend/static uvicorn app.main:app --reload
 
 Le client web est servi par le conteneur front (nginx) : cette API ne renvoie que du JSON.
 Le format de chaque réponse suit exactement front/static/mock.json.
@@ -10,10 +10,9 @@ Le format de chaque réponse suit exactement front/static/mock.json.
 import os
 import time
 from pathlib import Path
-from typing import Any, cast
 
 import psycopg
-from psycopg.rows import dict_row
+from psycopg.rows import dict_row, DictRow
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
@@ -37,10 +36,9 @@ app = FastAPI(title="Moteur de recherche DAAR")
 # Outils
 # ============================================================
 
-def db():
+def db() -> psycopg.Connection[DictRow]:
     """Connexion à PostgreSQL. Les lignes sont renvoyées sous forme de dictionnaires."""
-    return psycopg.connect(DATABASE_URL)
-
+    return psycopg.Connection[DictRow].connect(DATABASE_URL, row_factory=dict_row)
 
 def erreur(code, message, status=400):
     """Même format que les erreurs de mock.json."""
@@ -109,6 +107,12 @@ def suggestions(conn, top_ids, k=NB_SUGGESTIONS):
 # ============================================================
 # Routes
 # ============================================================
+
+@app.get("/health")
+def health():
+    """Vérifie que l'API répond (utilisable par un healthcheck Docker)."""
+    return {"status": "ok"}
+
 
 @app.get("/api/search")
 def api_search(q: str, limit: int = MAX_RESULTATS):
@@ -184,25 +188,37 @@ def api_book(book_id: int):
         if livre is None:
             return erreur("not_found", f"Aucun livre avec l'identifiant {book_id}.", status=404)
 
-        # livre["neighbors"] = conn.execute("""
-        #     SELECT b.gutenberg_id AS id, b.title, b.author, e.distance
-        #     FROM jaccard_edges e
-        #     JOIN books b ON b.gutenberg_id = CASE WHEN e.book_a = %(id)s THEN e.book_b ELSE e.book_a END
-        #     WHERE e.book_a = %(id)s OR e.book_b = %(id)s
-        #     ORDER BY e.distance
-        #     LIMIT 10
-        # """, {"id": book_id}).fetchall()
+        # Toujours renvoyer "neighbors" (liste vide si le graphe n'est pas encore calculé) :
+        # app.js fait livre.neighbors.map(...) et plante si le champ est absent.
+        livre["neighbors"] = conn.execute("""
+            SELECT b.gutenberg_id AS id, b.title, b.author, e.distance
+            FROM jaccard_edges e
+            JOIN books b ON b.gutenberg_id = CASE WHEN e.book_a = %(id)s THEN e.book_b ELSE e.book_a END
+            WHERE e.book_a = %(id)s OR e.book_b = %(id)s
+            ORDER BY e.distance
+            LIMIT 10
+        """, {"id": book_id}).fetchall()
     return livre
 
 # récup du texte pour lecture
 @app.get("/api/books/{book_id}/text")
 def api_book_text(book_id: int):
     with db() as conn:
-        row = cast(
-            dict[str, Any],
-            conn.execute("SELECT file_path FROM books WHERE gutenberg_id = %s", (book_id,)).fetchone(),
-        )
+        row = conn.execute("SELECT file_path FROM books WHERE gutenberg_id = %s", (book_id,)).fetchone()
     if row is None:
-      return erreur("not_found", f"Aucun livre avec l'identifiant {book_id}.", status=404)
+        return erreur("not_found", f"Aucun livre avec l'identifiant {book_id}.", status=404)
     
     return {"id": book_id, "text": lire_livre(row["file_path"])}
+
+
+# ============================================================
+# DÉVELOPPEMENT UNIQUEMENT : servir aussi le client web
+# Activé seulement si la variable STATIC_DIR est définie.
+# Dans Docker, elle ne l'est pas : c'est nginx qui sert le client.
+# Toujours en dernier, après toutes les routes /api.
+# ============================================================
+
+# STATIC_DIR = os.environ.get("STATIC_DIR")
+# if STATIC_DIR:
+#     from fastapi.staticfiles import StaticFiles
+#     app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
