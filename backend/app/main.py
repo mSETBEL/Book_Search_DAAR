@@ -210,6 +210,9 @@ def api_book_text(book_id: int):
     
     return {"id": book_id, "text": lire_livre(row["file_path"])}
 
+@app.get("/api/health")
+def api_health():
+    return {"status": "ok"}
 
 # ============================================================
 # DÉVELOPPEMENT UNIQUEMENT : servir aussi le client web
