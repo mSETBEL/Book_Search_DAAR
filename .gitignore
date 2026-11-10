@@ -47,3 +47,6 @@ Thumbs.db
 *.zip
 *.tar.gz
 *.7z
+
+
+docker-compose.override.yml

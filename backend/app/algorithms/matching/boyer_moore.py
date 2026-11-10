@@ -50,28 +50,32 @@ def preprocess_case2(shift, bpos, pat, m):
 
 
 def search(text, pat) -> int:
-	"""Boyer-Moore string matching algorithm using bad character and good suffix heuristics."""
+    """Boyer-Moore string matching algorithm using bad character and good suffix heuristics."""
 
-    # s is shift of the pattern with respect to text
-	s = 0
-	m = len(pat)
-	n = len(text)
 
-	bpos = [0] * (m + 1)
-	shift = [0] * (m + 1)
+    s=0
+    m = len(pat)
+    n = len(text)
 
+    bpos = [0] * (m + 1)
+    shift = [0] * (m + 1)
+
+    number_of_occurrences = 0
 
     # do preprocessing
-	preprocess_strong_suffix(shift, bpos, pat, m)
-	preprocess_case2(shift, bpos, pat, m)
-	bad_char = bad_char_heuristic(pat, range(256))
-
-	while s <= n - m:
-		j = m - 1
-		while j >= 0 and pat[j] == text[s + j]:
-			j -= 1
-		if j < 0:
-            #print("Pattern occurs at shift = {}".format(s))
-			s += (m - bad_char[ord(text[s + m])] if s + m < n else 1)
-		else:
-			s+= max(shift[j + 1], j - bad_char[ord(text[s + j])])
+    preprocess_strong_suffix(shift, bpos, pat, m)
+    preprocess_case2(shift, bpos, pat, m)
+    bad_char = bad_char_heuristic(pat, range(256))
+    
+    while s <= n - m:
+            j = m - 1
+            while j >= 0 and pat[j] == text[s + j]:
+                j -= 1
+            if j < 0:
+                #print("Pattern occurs at shift = {}".format(s))
+                number_of_occurrences += 1
+                s += (m - bad_char[ord(text[s + m])] if s + m < n else 1)
+            else:
+                s+= max(shift[j + 1], j - bad_char[ord(text[s + j])])
+    
+    return number_of_occurrences

@@ -1,8 +1,14 @@
 
 // accès serveur 
 async function api(chemin) {
+   try {
     const reponse = await fetch("/api" + chemin);
-    return await reponse.json();
+    const corps = await reponse.json();
+    if (reponse.ok) return corps;
+    return { error: true, message: corps.message || "Erreur du serveur (" + reponse.status + ")" };
+  } catch (e) {
+    return { error: true, message: "Impossible de joindre le serveur." };
+  }
 }
 
 // Affiche une seule vue et cache les autres

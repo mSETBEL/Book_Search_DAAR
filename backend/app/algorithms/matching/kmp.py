@@ -19,14 +19,16 @@ def kmp_search(text, pattern, carry_over):
 	n = len(text)
 	m = len(pattern)
 	j = 0
+	number_of_occurrences = 0
 	for i in range(n):
 		while j > 0 and text[i] != pattern[j]:
 			j = carry_over[j - 1]
 		if text[i] == pattern[j]:
 			j += 1
 		if j == m:
+			number_of_occurrences += 1
 			return i - m + 1
-	return -1
+	return number_of_occurrences
 
 def listOccurrencs(lines, pattern):
 	"""List all occurrences of pattern in text using KMP algorithm."""

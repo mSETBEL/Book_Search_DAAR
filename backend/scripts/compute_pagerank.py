@@ -1,22 +1,12 @@
-"""backend/scripts/compute_pagerank.py
-
-Reads the Jaccard graph from `jaccard_edges`, runs PageRank, and writes the
-score of every book into books.pagerank.
-
-Run it after the graph is built, and again whenever the graph changes:
-    docker compose exec backend python -m scripts.compute_pagerank
-
-Uses pagerank() from algorithms/pagerank.py (the sparse version).
-"""
 import os
 import time
 
 import psycopg
 
-from algorithms.pagerank import pagerank
+from app.algorithms.ranking.pagerank import pagerank
 
-TELEPORT = 0.15  # s = 1 - damping; try 0.05 / 0.15 / 0.30 for the report
-
+TELEPORT = 0.15  # evaporation factor
+ITERATIONS = 100  # number of iterations for power iteration
 
 def main():
     with psycopg.connect(os.environ["DATABASE_URL"], autocommit=True) as conn:
@@ -36,7 +26,7 @@ def main():
             edges.append((b, a, similarity))
 
         t0 = time.perf_counter()
-        scores = pagerank(edges, book_ids, s=TELEPORT)
+        scores = pagerank(edges, book_ids, s=TELEPORT , t=ITERATIONS)
         elapsed = time.perf_counter() - t0
 
         with conn.transaction():
