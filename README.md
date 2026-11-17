@@ -2,14 +2,7 @@
 
 ## Pré-requis
 - Python 3 avec fastapi, uvicorn, 
-
-
-python -m venv venv
-source venv/bin/activate 
-pip install fastapi uvicorn
-pip freeze > requirements.txt
-
-
+- Docker
 
 lien vers rapport : 
 https://www.overleaf.com/project/6adbb2fed75dded5e5cea2a1/share#1135ca6eb90859bd6edad5feb742bd1c998719aae1a2b5d9 
@@ -39,17 +32,30 @@ https://www.overleaf.com/project/6adbb2fed75dded5e5cea2a1/share#1135ca6eb90859bd
 
 scripts avant de lancer 
 
-catalog, download
+
 
 
 lancer, depuis backend/ : 
 
 DATABASE_URL=postgresql://daar:MOTDEPASSE@localhost:5432/daar BOOKS_DIR=../data/books uvicorn app.main:app --reload
 
-commandes:
+Commandes pour lancer l'application :
 ```bash
+python3 -m venv venv
+source venv/bin/activate 
+pip install < requirements.txt
+python scripts/catalog.py
+python scripts/download.py
 docker compose up --build -d
 docker compose run --rm backend python scripts/load_books.py
 ```
 
-Pour arrêter les conteneurs sans supprimer les données de la base : `docker compose down`
+Pour lancer une requête sur la base de données:
+```bash
+docker compose exec
+```
+
+Pour arrêter les conteneurs sans supprimer les données de la base : 
+```bash
+docker compose down
+```

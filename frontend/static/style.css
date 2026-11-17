@@ -78,3 +78,15 @@ aside {
   .colonnes > div { flex: 2; }
   aside { flex: 1; }
 }
+
+#texte-livre {
+  white-space: pre-wrap;
+  max-width: 70ch;
+  line-height: 1.6;
+  margin: 0 auto;
+}
+
+#lien-accueil {
+  color: inherit;
+  text-decoration: none;
+}

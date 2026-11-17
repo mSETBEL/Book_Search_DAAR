@@ -13,7 +13,7 @@ from pathlib import Path
 
 import psycopg
 from psycopg.rows import dict_row, DictRow
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 
 from app.algorithms.matching import boyer_moore
@@ -69,18 +69,55 @@ def bm_occurrences(texte, motif):
     return boyer_moore.search(texte, motif)
 
 
-def classer(livres):
-    """
-    Classement PROVISOIRE : occurrences, puis PageRank en cas d'égalité.
-    Le score est le nombre d'occurrences ramené entre 0 et 1.
-    À remplacer par la fonction de classement de B dès que sa signature est connue.
+def candidats(conn, terms):
+    """Livres dont chaque mot est dans l'auteur, le titre ou l'index inversé."""
+    voulus = set(terms)
+ 
+    # 1. Occurrences de chaque mot dans le texte des livres (index inversé)
+    occ = {}  # id du livre -> {mot: occurrences}
+    for r in conn.execute(
+            "SELECT book_id, term, occurrences FROM inverted_index "
+            "WHERE term = ANY(%s)", (terms,)):
+        occ.setdefault(r["book_id"], {})[r["term"]] = r["occurrences"]
+ 
+    # 2. Auteur et titre de tous les livres
+    livres = []
+    for b in conn.execute(
+            "SELECT gutenberg_id AS id, title, author, file_path, "
+            "pagerank AS centrality FROM books"):
+        dans_auteur = voulus & set(tokenizer.tokenize(b["author"] or ""))
+        dans_titre = voulus & set(tokenizer.tokenize(b["title"] or ""))
+        dans_texte = set(occ.get(b["id"], {}))
+        if voulus - (dans_auteur | dans_titre | dans_texte):
+            continue  # un mot n'est trouvé nulle part : on écarte le livre
+        b["author_hits"] = len(dans_auteur)
+        b["title_hits"] = len(dans_titre)
+        b["occurrences"] = sum(occ.get(b["id"], {}).values())
+        b["matched_in"] = [nom for nom, trouve in (
+            ("author", dans_auteur), ("title", dans_titre),
+            ("text", dans_texte)) if trouve]
+        livres.append(b)
+    return livres
+ 
+ 
+def classer(livres, nb_termes):
+    """Auteur > titre > occurrences ; le PageRank départage les égalités.
+ 
+    score dans [0, 1] = 0.6 * part des mots trouvés dans l'auteur
+                      + 0.3 * part des mots trouvés dans le titre
+                      + 0.1 * occurrences / maximum des occurrences.
+    0.6 > 0.3 + 0.1 et 0.3 > 0.1 : pour une requête d'un mot, l'ordre est
+    exactement « auteur, puis titre, puis occurrences ».
     """
     if not livres:
         return []
     max_occ = max(l["occurrences"] for l in livres) or 1
     for l in livres:
-        l["score"] = round(l["occurrences"] / max_occ, 4)
-    return sorted(livres, key=lambda l: (l["occurrences"], l["centrality"] or 0), reverse=True)
+        l["score"] = round(0.6 * l["author_hits"] / nb_termes
+                           + 0.3 * l["title_hits"] / nb_termes
+                           + 0.1 * l["occurrences"] / max_occ, 4)
+    return sorted(livres, key=lambda l: (l["score"], l["centrality"] or 0),
+                  reverse=True)
 
 
 def suggestions(conn, top_ids, k=NB_SUGGESTIONS):
@@ -131,20 +168,14 @@ def api_search(q: str, limit: int = MAX_RESULTATS):
         return erreur("empty_query", "La requête ne contient aucun mot recherchable (mots trop courts ou trop courants).")
 
     with db() as conn:
-        # 1. Index inversé : livres contenant tous les mots
-        livres = conn.execute("""
-            SELECT b.gutenberg_id AS id, b.gutenberg_id, b.title, b.author, b.file_path,
-                   SUM(i.occurrences)::int AS occurrences,
-                   b.pagerank AS centrality
-            FROM inverted_index i
-            JOIN books b ON b.gutenberg_id = i.book_id
-            WHERE i.term = ANY(%s)
-            GROUP BY b.gutenberg_id
-            HAVING COUNT(DISTINCT i.term) = %s
-            ORDER BY occurrences DESC
-        """, (terms, len(terms))).fetchall()
+        livres = candidats(conn, terms)
+        # Classement et suggestions
+        classes = classer(livres, len(terms))
+        sugg = suggestions(conn, [l["id"] for l in classes[:3]])
 
-        # # 2. Expression exacte : Boyer-Moore sur les meilleurs candidats
+
+
+        # # Expression exacte : Boyer-Moore sur les meilleurs candidats
         # if phrase:
         #     motif = q.strip('"').lower()
         #     verifies = []
@@ -154,13 +185,8 @@ def api_search(q: str, limit: int = MAX_RESULTATS):
         #             livre["occurrences"] = n
         #             verifies.append(livre)
         #     livres = verifies
-
-        # 3. Classement et suggestions
-        classes = classer(livres)
-        sugg = suggestions(conn, [l["id"] for l in classes[:3]])
-
     for l in classes:
-        del l["file_path"]          # interne, pas dans le contrat
+        del l["file_path"], l["author_hits"], l["title_hits"]
 
     return {
         "query": q,
@@ -209,6 +235,37 @@ def api_book_text(book_id: int):
         return erreur("not_found", f"Aucun livre avec l'identifiant {book_id}.", status=404)
     
     return {"id": book_id, "text": lire_livre(row["file_path"])}
+
+
+# compte une consultation de la fiche d'un livre (livres populaires)
+@app.post("/api/books/{book_id}/click")
+def api_click(book_id: int):
+    try:
+        with db() as conn:
+            # 1er clic : crée la ligne avec 1 ; clics suivants : ajoute 1
+            conn.execute("""
+                INSERT INTO clicks (book_id, nb_clic) VALUES (%s, 1)
+                ON CONFLICT (book_id) DO UPDATE SET nb_clic = clicks.nb_clic + 1
+            """, (book_id,))
+    except psycopg.errors.ForeignKeyViolation:
+        # le livre n'existe pas dans books : la clé étrangère refuse l'insertion
+        return erreur("not_found", f"Aucun livre avec l'identifiant {book_id}.", status=404)
+    return {"ok": True}
+
+
+# livres les plus consultés, pour la page d'accueil
+@app.get("/api/popular")
+def api_popular(limit: int = Query(10, ge=1, le=50)):
+    with db() as conn:
+        livres = conn.execute("""
+            SELECT b.gutenberg_id AS id, b.title, b.author, c.nb_clic
+            FROM clicks c
+            JOIN books b ON b.gutenberg_id = c.book_id
+            WHERE c.nb_clic > 0
+            ORDER BY c.nb_clic DESC, b.title
+            LIMIT %s
+        """, (limit,)).fetchall()
+    return {"results": livres}
 
 @app.get("/api/health")
 def api_health():

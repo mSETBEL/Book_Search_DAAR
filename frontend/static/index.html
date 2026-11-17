@@ -11,13 +11,13 @@
 
   <!-- en tete -->
   <header>
-    <h1>Bibliothèque de Farah, Melissa & Sofija</h1>
+    <h1><a href="/" id="lien-accueil">Bibliothèque de Farah, Melissa &amp; Sofija</a></h1>
 
     <form id="form-recherche">
       <input id="champ" type="text" placeholder="Rechercher un livre..." required>
 
       <div class="options">
-        <label><input type="radio" name="mode" value="keyword" checked> Mot-clé</label>
+        <label><input type="radio" name="mode" value="keyword" checked> Mots-clef</label>
         <label><input type="radio" name="mode" value="regex"> RegEx</label>
 
         <!-- Actif seulement en mode RegEx -->
@@ -34,7 +34,10 @@
   <main>
     <!-- VUE 1 : accueil -->
     <section id="vue-accueil">
-      <p class="placeholder">Tapez des mots ou une expression régulière pour chercher parmi les livres.</p>
+      <p class="placeholder">Tapez des mots-clef ou une expression régulière pour chercher parmi les livres disponibles.</p>
+      <h2>Livres populaires</h2>
+      <p id="aucun-populaire" hidden>Aucun livre consulté pour l'instant.</p>
+      <ol id="liste-populaires"></ol>
     </section>
 
     <!-- VUE 2 : résultats -->
@@ -57,7 +60,15 @@
     <!-- VUE 3 : détail d'un livre -->
     <section id="vue-livre" hidden>
       <button id="retour" type="button">&larr; Retour aux résultats</button>
+      <button id="btn-lire" type="button">Lire le livre</button>
       <div id="detail-livre"></div>
+    </section>
+
+    <!-- VUE : texte du livre -->
+    <section id="vue-texte" hidden>
+      <button id="retour-texte" type="button">&larr; Retour vers la fiche du livre</button>
+      <h2 id="titre-texte"></h2>
+      <div id="texte-livre"></div>
     </section>
 
     <!-- VUE 4 : erreur ou aucun résultat -->

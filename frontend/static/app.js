@@ -7,7 +7,7 @@ async function api(chemin) {
 
 // Affiche une seule vue et cache les autres
 function afficher(idVue) {
-  const vues = ["vue-accueil", "vue-resultats", "vue-livre", "vue-erreur"];
+  const vues = ["vue-accueil", "vue-resultats", "vue-livre", "vue-erreur", "vue-texte"];
   for (const id of vues) {
     document.getElementById(id).hidden = (id !== idVue);
   }
@@ -69,7 +69,7 @@ function afficherResultats(donnees) {
     liste.innerHTML += `
       <li>
         <button type="button" class="carte" data-id="${livre.id}">
-          <strong>${echapper(livre.title)}</strong> - ${echapper(livre.author)}
+          <strong>${echapper(livre.title)}</strong> - ${echapper(livre.author || "Auteur inconnu")}
           <small>${livre.occurrences} occurrences · score ${livre.score}</small>
         </button>
       </li>`;
@@ -91,16 +91,24 @@ function afficherResultats(donnees) {
   afficher("vue-resultats");
 }
 
+let livreCourant = null;
+
 // Un seul écouteur pour tous les boutons .carte de la page
 document.addEventListener("click", async (evenement) => {
   const bouton = evenement.target.closest(".carte");
   if (!bouton) return;
 
+  // Compte la consultation pour les clics
+  fetch("/api/books/" + bouton.dataset.id + "/click", { method: "POST" }).catch(() => { });
+
   const livre = await api("/books/" + bouton.dataset.id);
 
+  livreCourant = livre;
+
+  // Affiche les détails du livre
   document.getElementById("detail-livre").innerHTML = `
-    <h2>${echapper(livre.title)}</h2>
-    <p>${echapper(livre.author)} · ${livre.word_count} mots · PageRank ${livre.pagerank}</p>
+    <h1>${echapper(livre.title)} · ${echapper(livre.author || "Auteur inconnu")} </h1>
+    <p>${livre.word_count} mots · PageRank ${livre.pagerank}</p>
     <h3>Livres proches</h3>
     <ul>
       ${livre.neighbors.map(v => `<li>${echapper(v.title)} (distance ${v.distance})</li>`).join("")}
@@ -109,4 +117,52 @@ document.addEventListener("click", async (evenement) => {
   afficher("vue-livre");
 });
 
+// ecouteur pour le bouton "Retour aux résultats"
 document.getElementById("retour").addEventListener("click", () => afficher("vue-resultats"));
+
+// ecouteur pour le bouton "Lire le livre"
+document.getElementById("btn-lire").addEventListener("click", async () => {
+  const donnees = await api("/books/" + livreCourant.id + "/text");
+  document.getElementById("titre-texte").textContent = livreCourant.title;
+  document.getElementById("texte-livre").textContent = donnees.text;
+  afficher("vue-texte");
+  window.scrollTo(0, 0);
+});
+
+// ecouteur pour le bouton "Retour vers la fiche du livre"
+document.getElementById("retour-texte").addEventListener("click", () => afficher("vue-livre"));
+
+
+// LIVRES POPULAIRES (page d'accueil)
+async function chargerPopulaires() {
+  const liste = document.getElementById("liste-populaires");
+  const aucun = document.getElementById("aucun-populaire");
+
+  const donnees = await api("/popular");
+  const livres = donnees.results || [];   // en cas d'erreur du serveur : liste vide
+
+  liste.innerHTML = "";
+  aucun.hidden = livres.length > 0;       // message affiché seulement si la liste est vide
+
+  for (const livre of livres) {
+    liste.innerHTML += `
+      <li>
+        <button type="button" class="carte" data-id="${livre.id}">
+          <strong>${echapper(livre.title)}</strong> - ${echapper(livre.author || "Auteur inconnu")}
+          <small>${livre.nb_clic} consultation(s)</small>
+        </button>
+      </li>`;
+  }
+}
+
+// RETOUR À L'ACCUEIL (clic sur le titre)
+
+document.getElementById("lien-accueil").addEventListener("click", (evenement) => {
+  evenement.preventDefault(); // pas de rechargement complet de la page
+  champ.value = "";
+  afficher("vue-accueil");
+  chargerPopulaires(); // la liste tient compte des derniers clics
+});
+
+// Remplir liste au chargement de la page
+chargerPopulaires();
