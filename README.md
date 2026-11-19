@@ -1,11 +1,36 @@
 # Book_Search_DAAR 
+> rapport : https://www.overleaf.com/project/6adbb2fed75dded5e5cea2a1/share#1135ca6eb90859bd6edad5feb742bd1c998719aae1a2b5d9 
 
-## Pré-requis
-- Python 3 avec fastapi, uvicorn, 
+## Dépendances
+- Python 3 avec fastapi, uvicorn 
 - Docker
 
-lien vers rapport : 
-https://www.overleaf.com/project/6adbb2fed75dded5e5cea2a1/share#1135ca6eb90859bd6edad5feb742bd1c998719aae1a2b5d9 
+## Pour se connecter à l'appli web depuis d'autres appareils
+Les appareils doivent être connectés sur le même WIFI,
+ le plus simple est qu'ils soient tous sur le même partage de connexion 
+
+### Lancer le serveur depuis la machine principale
+(peut-être qu'il faudrait en faire un script pour simplifier le lancement du serveur? le soucis c'est que ça *dépend du mot de passe dans le .env* donc jsp trop)
+
+```bash
+docker compose up --build -d
+cd backend/
+STATIC_DIR=../frontend/static \
+DATABASE_URL=postgresql://daar:<MOT_DE_PASSE>@localhost:5432/daar \
+BOOKS_DIR=../data/books \
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+On devrait voir affiché `INFO:  Application startup complete.` : le serveur est bien lancé. 
+
+### Connexion de l'appareil (téléphone, tablette..)
+dans un navigateur: `http://<@IP de la machine sur laquelle le serveur tourne>`
+> j'ai pas testé sur un ordi mais ça devrait fonctionner aussi 
+
+#### Trouver l’adresse IP de l’ordinateur serveur
+- macOS : `ipconfig getifaddr en0`
+- Windows : `ipconfig` 
+- Linux : `hostname -I`
 
 ## TO DO LIST 
 - partie algos (backend) :
@@ -30,12 +55,7 @@ https://www.overleaf.com/project/6adbb2fed75dded5e5cea2a1/share#1135ca6eb90859bd
   - Exemples de centralité sur un échantillon de livres
   
 
-scripts avant de lancer 
-
-
-
-
-lancer, depuis backend/ : 
+pour lancer en local, depuis backend/ : 
 
 DATABASE_URL=postgresql://daar:MOTDEPASSE@localhost:5432/daar BOOKS_DIR=../data/books uvicorn app.main:app --reload
 
@@ -44,6 +64,7 @@ Commandes pour lancer l'application :
 python3 -m venv venv
 source venv/bin/activate 
 pip install < requirements.txt
+# scripts pour mettre en place la base avant de lancer les conteneurs
 python scripts/catalog.py
 python scripts/download.py
 docker compose up --build -d
@@ -60,8 +81,3 @@ Pour arrêter les conteneurs sans supprimer les données de la base :
 docker compose down
 ```
 
-Trouver l’adresse IP de l’ordinateur serveur
-
-- macOS : `ipconfig getifaddr en0`
-- Windows : `ipconfig` de la carte WiFi
-- Linux : `hostname -I`
