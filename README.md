@@ -59,3 +59,9 @@ Pour arrêter les conteneurs sans supprimer les données de la base :
 ```bash
 docker compose down
 ```
+
+Trouver l’adresse IP de l’ordinateur serveur
+
+- macOS : `ipconfig getifaddr en0`
+- Windows : `ipconfig` de la carte WiFi
+- Linux : `hostname -I`

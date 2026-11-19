@@ -10,6 +10,7 @@ Le format de chaque réponse suit exactement front/static/mock.json.
 import os
 import time
 from pathlib import Path
+import re
 
 import psycopg
 from psycopg.rows import dict_row, DictRow
@@ -68,6 +69,9 @@ def bm_occurrences(texte, motif):
     """
     return boyer_moore.search(texte, motif)
 
+def compter(texte, regex):
+    return sum(1 for _ in regex.finditer(texte))
+
 
 def candidats(conn, terms):
     """Livres dont chaque mot est dans l'auteur, le titre ou l'index inversé."""
@@ -98,8 +102,54 @@ def candidats(conn, terms):
             ("text", dans_texte)) if trouve]
         livres.append(b)
     return livres
- 
- 
+
+def candidats_regex(conn, regex):
+    """Livres dont le regex est dans l'auteur, le titre ou l'index inversé."""
+    livres = []
+    for b in conn.execute(
+            "SELECT gutenberg_id AS id, title, author, file_path, "
+            "pagerank AS centrality FROM books"):
+        dans_auteur = regex.search(b["author"] or "")
+        dans_titre = regex.search(b["title"] or "")
+        dans_texte = conn.execute(
+            "SELECT 1 FROM inverted_index WHERE book_id = %s AND term ~* %s",
+            (b["id"], regex.pattern)).fetchall()
+        if not (dans_auteur or dans_titre or dans_texte):
+            continue  # le regex n'est trouvé nulle part : on écarte le livre
+        occurrences = len(dans_texte)  # nombre de mots de l'index inversé qui matchent
+        b["author_hits"] = 1 if dans_auteur else 0
+        b["title_hits"] = 1 if dans_titre else 0
+        b["occurrences"] = occurrences
+        b["matched_in"] = [nom for nom, trouve in (
+                    ("author", dans_auteur), ("title", dans_titre),
+                    ("text", dans_texte)) if trouve]
+        livres.append(b)
+    return livres
+
+def candidats_regex_text(conn, regex):
+    """Livres dont le regex est dans le texte"""
+
+    tous = conn.execute(
+        "SELECT gutenberg_id AS id, title, author, file_path, "
+        "pagerank AS centrality FROM books ORDER BY gutenberg_id").fetchall()
+    livres = []
+    for b in tous:
+        try:
+            n = compter((lire_livre(b["file_path"])),regex)
+        except OSError:
+            continue  # fichier absent : on passe au suivant
+        if n > 0:
+            b["occurrences"] = n
+            livres.append(b)
+    return livres
+
+def classer_texte(livres):
+    """Classe les livres par occurrences du regex dans le texte (lecture complète)."""
+    if not livres :
+        return []
+    return sorted(livres, key=lambda l: (l["occurrences"], l["centrality"] or 0),
+                      reverse=True)
+
 def classer(livres, nb_termes):
     """Auteur > titre > occurrences ; le PageRank départage les égalités.
  
@@ -200,7 +250,35 @@ def api_search(q: str, limit: int = MAX_RESULTATS):
 # TODO recherche par regex
 @app.get("/api/search/advanced")
 def api_advanced(regex: str, scope: str = "index"):
-    return erreur("not_implemented", "La recherche avancée n'est pas encore implémentée.", status=501)
+
+    if scope not in ("index", "text"):
+        return erreur("invalid_scope", "Le paramètre 'scope' doit être 'index' ou 'text'.")
+
+    start = time.perf_counter()
+    regex = regex.strip()
+    if not regex:
+        return erreur("empty_query", "La requête ne contient aucun mot recherchable (mots trop courts ou trop courants).")
+    regex = regex.lower()
+    regex_compiled = re.compile(regex, re.IGNORECASE)
+
+    with db() as conn:
+        if scope == "index": 
+            livres = candidats_regex(conn, regex_compiled)
+            classes = classer(livres, 1)
+        else :
+            livres = candidats_regex_text(conn, regex_compiled)
+            classes = livres
+            classes = classer_texte(livres)
+        sugg = suggestions(conn, [l["id"] for l in classes[:3]])
+
+
+    return {"query": regex,
+            "mode": "regex",
+            "scope": scope,
+            "total": len(classes),
+            "time_ms": duree_ms(start),
+            "results": classes[:MAX_RESULTATS],
+            "suggestions": sugg}
 
 # récup livre par son identifiant Gutenberg
 @app.get("/api/books/{book_id}")
@@ -236,7 +314,6 @@ def api_book_text(book_id: int):
     
     return {"id": book_id, "text": lire_livre(row["file_path"])}
 
-
 # compte une consultation de la fiche d'un livre (livres populaires)
 @app.post("/api/books/{book_id}/click")
 def api_click(book_id: int):
@@ -267,6 +344,7 @@ def api_popular(limit: int = Query(10, ge=1, le=50)):
         """, (limit,)).fetchall()
     return {"results": livres}
 
+
 @app.get("/api/health")
 def api_health():
     return {"status": "ok"}
@@ -278,7 +356,7 @@ def api_health():
 # Toujours en dernier, après toutes les routes /api.
 # ============================================================
 
-# STATIC_DIR = os.environ.get("STATIC_DIR")
-# if STATIC_DIR:
-#     from fastapi.staticfiles import StaticFiles
-#     app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
+STATIC_DIR = os.environ.get("STATIC_DIR")
+if STATIC_DIR:
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
