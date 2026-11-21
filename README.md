@@ -17,7 +17,7 @@ docker compose up --build -d
 cd backend/
 STATIC_DIR=../frontend/static \
 DATABASE_URL=postgresql://daar:<MOT_DE_PASSE>@localhost:5432/daar \
-BOOKS_DIR=../data/books \
+BOOKS_DIR=../database/books \
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
@@ -57,7 +57,7 @@ dans un navigateur: `http://<@IP de la machine sur laquelle le serveur tourne>`
 
 pour lancer en local, depuis backend/ : 
 
-DATABASE_URL=postgresql://daar:MOTDEPASSE@localhost:5432/daar BOOKS_DIR=../data/books uvicorn app.main:app --reload
+DATABASE_URL=postgresql://daar:MOTDEPASSE@localhost:5432/daar BOOKS_DIR=../database/books uvicorn app.main:app --reload
 
 Commandes pour lancer l'application :
 ```bash
