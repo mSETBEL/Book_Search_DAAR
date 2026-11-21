@@ -1,92 +1,367 @@
-/* Style "wireframe" : gris, bordures en pointillés, aucune décoration.
-   On embellira plus tard, une fois la structure validée. */
+/* Interface principale */
+:root {
+  --fond: #f6f4ef;
+  --surface: #ffffff;
+  --surface-forte: #fffaf4;
+  --texte: #24312b;
+  --texte-doux: #69746f;
+  --primaire: #2f7657;
+  --primaire-fonce: #215940;
+  --bordure: #dde3df;
+  --ombre: 0 10px 30px rgba(36, 49, 43, 0.08);
+}
 
 * { box-sizing: border-box; }
 
+[hidden] { display: none !important; }
+
+html { scroll-behavior: smooth; }
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  color: #222;
-  background: #fff;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--texte);
+  background:
+    radial-gradient(circle at top left, rgba(47, 118, 87, 0.10), transparent 28rem),
+    var(--fond);
 }
 
-header, main {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 16px;
+header {
+  max-width: 1120px;
+  margin: 24px auto 0;
+  padding: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--bordure);
+  border-radius: 20px;
+  box-shadow: var(--ombre);
 }
 
-header { border-bottom: 2px dashed #999; }
+main {
+  max-width: 1120px;
+  margin: 24px auto 48px;
+  padding: 0 28px 28px;
+}
 
-h1 { margin: 0 0 12px; font-size: 1.5rem; }
-h2 { font-size: 1.1rem; margin: 0 0 8px; }
+h1 {
+  margin: 0 0 20px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.55rem, 4vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  margin: 0 0 14px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+}
+
+h3 {
+  margin: 24px 0 12px;
+  font-size: 1rem;
+}
+
+#lien-accueil {
+  color: var(--texte);
+  text-decoration: none;
+}
+
+#lien-accueil:hover { color: var(--primaire); }
 
 /* --- Formulaire --- */
-form { display: flex; flex-direction: column; gap: 10px; }
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
 input[type="text"], select, button {
-  font-size: 1rem;
-  padding: 10px;            /* zones assez grandes pour un doigt */
-  border: 1px solid #888;
-  border-radius: 4px;
-  background: #fff;
+  font: inherit;
+  border: 1px solid var(--bordure);
+  border-radius: 10px;
 }
 
-button { background: #ddd; cursor: pointer; }
+input[type="text"], select {
+  min-height: 46px;
+  padding: 10px 13px;
+  color: var(--texte);
+  background: var(--surface);
+  outline: none;
+}
 
-.options { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+input[type="text"]:focus, select:focus {
+  border-color: var(--primaire);
+  box-shadow: 0 0 0 3px rgba(47, 118, 87, 0.13);
+}
 
-/* --- Blocs de contenu --- */
+button {
+  min-height: 42px;
+  padding: 10px 16px;
+  color: #fff;
+  background: var(--primaire);
+  border: 0;
+  cursor: pointer;
+  transition: transform 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+button:hover {
+  background: var(--primaire-fonce);
+  transform: translateY(-1px);
+}
+
+button:focus-visible {
+  outline: 3px solid rgba(47, 118, 87, 0.28);
+  outline-offset: 2px;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  color: var(--texte-doux);
+}
+
+.options label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+input[type="radio"] { accent-color: var(--primaire); }
+
+select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* --- Vues et blocs --- */
 .placeholder {
-  border: 2px dashed #bbb;
-  padding: 24px;
+  margin: 0 0 28px;
+  padding: 18px 20px;
+  color: var(--texte-doux);
+  background: linear-gradient(135deg, var(--surface-forte), var(--surface));
+  border: 1px solid var(--bordure);
+  border-radius: 14px;
   text-align: center;
-  color: #666;
 }
 
-#infos { color: #666; font-size: 0.9rem; }
+#infos {
+  margin: 0 0 18px;
+  color: var(--texte-doux);
+  font-size: 0.92rem;
+}
 
-/* Sur téléphone : une seule colonne */
-.colonnes { display: flex; flex-direction: column; gap: 16px; }
+ol, ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 
-ol, ul { margin: 0; padding-left: 20px; }
+li { margin-bottom: 10px; }
 
-li { margin-bottom: 8px; }
+.colonnes {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
-/* Chaque résultat est un bouton cliquable qui ressemble à une carte */
+.colonnes > div,
+.colonnes > aside { min-width: 0; }
+
 .carte {
   width: 100%;
+  min-height: 78px;
+  padding: 16px 18px;
+  color: var(--texte);
+  background: var(--surface);
+  border: 1px solid var(--bordure);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(36, 49, 43, 0.04);
   text-align: left;
-  background: #f4f4f4;
-  border: 1px dashed #999;
+  line-height: 1.45;
 }
 
-.carte small { display: block; color: #666; margin-top: 4px; }
+.carte strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--texte);
+  font-size: 1.02rem;
+}
+
+.carte small {
+  display: block;
+  margin-top: 6px;
+  color: var(--texte-doux);
+  font-size: 0.84rem;
+}
+
+.carte:hover {
+  background: var(--surface-forte);
+  border-color: rgba(47, 118, 87, 0.48);
+  box-shadow: 0 8px 20px rgba(36, 49, 43, 0.09);
+}
 
 aside {
-  border: 2px dashed #bbb;
-  padding: 12px;
+  align-self: start;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--bordure);
+  border-radius: 14px;
+  box-shadow: var(--ombre);
 }
 
-#detail-livre { margin-top: 16px; border: 2px dashed #bbb; padding: 16px; }
+aside h2 { margin-bottom: 12px; }
 
-/* Sur écran large : résultats à gauche, suggestions à droite */
+#liste-populaires {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  counter-reset: populaires;
+}
+
+#liste-populaires li {
+  position: relative;
+  margin: 0;
+  counter-increment: populaires;
+}
+
+#liste-populaires li::before {
+  content: counter(populaires);
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 12px;
+  width: 28px;
+  height: 28px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--primaire);
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.82rem;
+  pointer-events: none;
+}
+
+#liste-populaires .carte { padding-left: 52px; }
+
+#aucun-populaire {
+  padding: 18px;
+  color: var(--texte-doux);
+  background: var(--surface);
+  border: 1px solid var(--bordure);
+  border-radius: 12px;
+}
+
+#vue-livre,
+#vue-texte,
+#vue-erreur,
+#vue-resultats {
+  margin-top: 20px;
+}
+
+#vue-livre > button,
+#vue-texte > button {
+  margin: 0 8px 14px 0;
+  color: var(--primaire-fonce);
+  background: #e9f1ec;
+  border: 1px solid #cadbd1;
+}
+
+#vue-livre > button:hover,
+#vue-texte > button:hover {
+  background: #dceadf;
+}
+
+#btn-lire {
+  color: #fff;
+  background: #b45309;
+  border: 1px solid #92400e;
+}
+
+#btn-lire:hover {
+  background: #92400e;
+}
+
+#detail-livre {
+  margin-top: 8px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--bordure);
+  border-radius: 16px;
+  box-shadow: var(--ombre);
+}
+
+#detail-livre h1 {
+  margin-bottom: 8px;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+}
+
+#detail-livre p {
+  color: var(--texte-doux);
+}
+
+#detail-livre ul { padding-left: 18px; list-style: disc; }
+
+#detail-livre li { color: var(--texte-doux); }
+
+#titre-texte {
+  margin: 18px 0;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+}
+
+#texte-livre {
+  max-width: 70ch;
+  margin: 0 auto;
+  padding: 26px;
+  white-space: pre-wrap;
+  line-height: 1.75;
+  background: var(--surface);
+  border: 1px solid var(--bordure);
+  border-radius: 16px;
+  box-shadow: var(--ombre);
+}
+
+/* --- Écran large --- */
 @media (min-width: 700px) {
-  form { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  form {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
   #champ { flex: 1 1 300px; }
   .colonnes { flex-direction: row; }
   .colonnes > div { flex: 2; }
   aside { flex: 1; }
+  #liste-populaires { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-#texte-livre {
-  white-space: pre-wrap;
-  max-width: 70ch;
-  line-height: 1.6;
-  margin: 0 auto;
+@media (min-width: 1000px) {
+  #liste-populaires { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-#lien-accueil {
-  color: inherit;
-  text-decoration: none;
+@media (max-width: 699px) {
+  header {
+    margin: 12px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  main {
+    margin-top: 16px;
+    padding: 0 12px 24px;
+  }
+
+  form > button { width: 100%; }
+  .options { width: 100%; }
+  #detail-livre, #texte-livre { padding: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  button { transition: none; }
 }
