@@ -15,6 +15,7 @@ import re
 import time
 from collections import Counter
 from pathlib import Path
+from tokenizer import tokenize
 
 import psycopg
 
@@ -40,7 +41,7 @@ def split_gutenberg(text: str):
     body_from = start + 1 if start is not None else 0
     end = next((i for i in range(body_from, len(lines))
                 if lines[i].startswith("*** END OF")), len(lines))
-    return header, lines[body_from:end]
+    return header, "\n".join(lines[body_from:end])
 
 # get the metadata 
 def header_field(header, key):
@@ -51,12 +52,6 @@ def header_field(header, key):
     return None
 
 
-def tokenize(text: str):
-    """Replace with algorithms.tokenizer.tokenize once it exists: the SAME
-    function must be used here and when parsing a user's query."""
-    return WORD_RE.findall(text.lower())
-
-
 # --- database ---------------------------------------------------------------
 def load_book(conn, path: Path, books_dir: Path):
     m = re.search(r"\d+", path.stem)
@@ -65,7 +60,7 @@ def load_book(conn, path: Path, books_dir: Path):
     gid = int(m.group())
 
     header, body = split_gutenberg(read_text(path))
-    tokens = tokenize("\n".join(body))
+    tokens = tokenize(body)
     if len(tokens) < MIN_WORDS:
         return f"rejected ({len(tokens)} words < {MIN_WORDS})"
     counts = Counter(tokens)

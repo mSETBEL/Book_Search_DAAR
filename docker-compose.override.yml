@@ -1,0 +1,12 @@
+# # docker-compose.override.yml  (dev only)
+# services:
+#   backend:
+#     ports:
+#       - "127.0.0.1:8000:8000"          # the only entry point, on your machine only
+#     volumes:
+#       - ./backend:/app                 # your code, so edits show up without a rebuild
+#       - ./database/books:/data/books
+#       - ./frontend/static:/app/static  # the page, served by the backend
+#     environment:
+#       WATCHFILES_FORCE_POLLING: "true" # needed for --reload on Windows drives
+#     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

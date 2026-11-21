@@ -258,7 +258,6 @@ def api_advanced(regex: str, scope: str = "index"):
     regex = regex.strip()
     if not regex:
         return erreur("empty_query", "La requête ne contient aucun mot recherchable (mots trop courts ou trop courants).")
-    regex = regex.lower()
     regex_compiled = re.compile(regex, re.IGNORECASE)
 
     with db() as conn:

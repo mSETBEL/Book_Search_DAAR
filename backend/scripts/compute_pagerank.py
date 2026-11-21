@@ -13,7 +13,7 @@ import time
 
 import psycopg
 
-from algorithms.pagerank import pagerank
+from app.algorithms.ranking.pagerank import *
 
 TELEPORT = 0.15  # s = 1 - damping; try 0.05 / 0.15 / 0.30 for the report
 
