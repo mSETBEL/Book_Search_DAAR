@@ -1,0 +1,43 @@
+-- ============================================================
+-- Schéma PostgreSQL du moteur de recherche
+-- Exécuté automatiquement par le conteneur "db" au premier démarrage,
+-- uniquement si le volume pgdata est vide.
+-- Pour le rejouer après modification : docker compose down -v  (EFFACE LA BASE)
+-- ============================================================
+
+-- Livres 
+CREATE TABLE IF NOT EXISTS books (
+    gutenberg_id  INTEGER PRIMARY KEY,
+    title         TEXT NOT NULL,
+    author        TEXT,
+    langue        TEXT,
+    word_count    INTEGER NOT NULL CHECK (word_count >= 10000),
+    file_path     TEXT NOT NULL,          -- chemin dans le volume "books"
+    pagerank      DOUBLE PRECISION        -- rempli par l'algorithme de PageRank
+);
+
+-- Index inversé : un mot, un livre, un nombre d'occurrences
+CREATE TABLE IF NOT EXISTS inverted_index (
+    term          TEXT NOT NULL,
+    book_id       INTEGER NOT NULL REFERENCES books(gutenberg_id) ON DELETE CASCADE,
+    occurrences   INTEGER NOT NULL,
+    PRIMARY KEY (term, book_id)
+);
+CREATE INDEX IF NOT EXISTS idx_index_book ON inverted_index(book_id);
+
+-- Graphe de Jaccard : une arête par paire de livres proches
+CREATE TABLE IF NOT EXISTS jaccard_edges (
+    book_a        INTEGER NOT NULL REFERENCES books(gutenberg_id) ON DELETE CASCADE,
+    book_b        INTEGER NOT NULL REFERENCES books(gutenberg_id) ON DELETE CASCADE,
+    distance      DOUBLE PRECISION NOT NULL,   -- 1 - |A ∩ B| / |A ∪ B|
+    PRIMARY KEY (book_a, book_b),
+    CHECK (book_a < book_b) 
+);
+CREATE INDEX IF NOT EXISTS idx_edges_b ON jaccard_edges(book_b);
+
+-- Clics anonymes (suggestion par clics)
+CREATE TABLE IF NOT EXISTS clicks (
+    book_id  INTEGER PRIMARY KEY REFERENCES books(gutenberg_id) ON DELETE CASCADE,
+    nb_clic  INTEGER NOT NULL DEFAULT 0
+);
+-- CREATE INDEX IF NOT EXISTS idx_clicks_book ON clicks(book_id);
