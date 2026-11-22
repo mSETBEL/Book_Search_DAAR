@@ -1,0 +1,10 @@
+# Dépendances SUPPLÉMENTAIRES pour les benchmarks (en plus de backend/requirements.txt)
+matplotlib
+requests
+psutil
+numpy
+scipy
+psycopg[binary]
+nltk
+fastapi
+uvicorn[standard]
