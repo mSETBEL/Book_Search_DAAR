@@ -1,0 +1,66 @@
+/* Page de connexion / inscription (réutilise les variables de style.css) */
+.page-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.carte-login {
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+  padding: 32px 28px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--bordure);
+  border-radius: 20px;
+  box-shadow: var(--ombre);
+}
+
+.carte-login h1 { margin-bottom: 8px; font-size: clamp(1.35rem, 5vw, 1.8rem); }
+.sous-titre { margin: 0 0 20px; color: var(--texte-doux); }
+
+.onglets { display: flex; gap: 8px; margin-bottom: 18px; }
+
+.onglet {
+  flex: 1;
+  color: var(--texte);
+  background: var(--surface);
+  border: 1px solid var(--bordure);
+}
+.onglet:hover { background: var(--surface-forte); transform: none; }
+.onglet.actif { color: #fff; background: var(--primaire); border-color: var(--primaire); }
+
+.carte-login form { gap: 8px; }
+.carte-login label { font-weight: 600; font-size: 0.92rem; }
+.carte-login small { margin-top: -4px; color: var(--texte-doux); }
+.carte-login form > button { margin-top: 10px; }
+
+input[type="password"],
+.carte-login input[type="text"] {
+  min-height: 46px;
+  padding: 10px 13px;
+  font: inherit;
+  color: var(--texte);
+  background: var(--surface);
+  border: 1px solid var(--bordure);
+  border-radius: 10px;
+  outline: none;
+}
+input[type="password"]:focus,
+.carte-login input[type="text"]:focus {
+  border-color: var(--primaire);
+  box-shadow: 0 0 0 3px rgba(47, 118, 87, 0.13);
+}
+
+.message {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #8a1f1f;
+  background: #fdeeee;
+  border: 1px solid #f3c6c6;
+}
+.message.info { color: var(--primaire-fonce); background: #eef7f2; border-color: #cfe5d9; }
+
+.afficher-mdp { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-weight: 400 !important; color: var(--texte-doux); }

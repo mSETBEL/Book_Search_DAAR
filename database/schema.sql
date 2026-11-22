@@ -41,3 +41,23 @@ CREATE TABLE IF NOT EXISTS clicks (
     nb_clic  INTEGER NOT NULL DEFAULT 0
 );
 -- CREATE INDEX IF NOT EXISTS idx_clicks_book ON clicks(book_id);
+
+-- ============================================================
+-- Authentification (créées aussi automatiquement par l'API au démarrage :
+-- une base déjà existante n'a donc PAS besoin d'être recréée)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS users (
+    id             SERIAL PRIMARY KEY,
+    username       TEXT NOT NULL,
+    password_hash  TEXT NOT NULL,          -- scrypt salé, jamais le mot de passe
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users (lower(username));
+
+CREATE TABLE IF NOT EXISTS sessions (
+    token_hash  TEXT PRIMARY KEY,          -- SHA-256 du jeton de session
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at  TIMESTAMPTZ NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);

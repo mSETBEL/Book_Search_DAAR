@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connexion - Bibliothèque de Farah, Melissa &amp; Sofija</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body class="page-login">
+
+  <main class="carte-login">
+    <h1>Bibliothèque de Farah, Melissa &amp; Sofija</h1>
+    <p class="sous-titre">Connectez-vous pour accéder au moteur de recherche.</p>
+
+    <div class="onglets" role="tablist">
+      <button type="button" role="tab" id="onglet-connexion" aria-selected="true" class="onglet actif">Connexion</button>
+      <button type="button" role="tab" id="onglet-inscription" aria-selected="false" class="onglet">Créer un compte</button>
+    </div>
+
+    <p id="message" class="message" role="alert" hidden></p>
+
+    <!-- Connexion -->
+    <form id="form-connexion" autocomplete="on">
+      <label for="login-username">Nom d'utilisateur</label>
+      <input id="login-username" name="username" type="text" autocomplete="username" required>
+
+      <label for="login-password">Mot de passe</label>
+      <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+
+      <button type="submit">Se connecter</button>
+    </form>
+
+    <!-- Inscription -->
+    <form id="form-inscription" autocomplete="on" hidden>
+      <label for="reg-username">Nom d'utilisateur</label>
+      <input id="reg-username" name="username" type="text" autocomplete="username" minlength="3" maxlength="32"
+             pattern="[A-Za-z0-9_.\-]{3,32}" required>
+      <small>3 à 32 caractères : lettres, chiffres, point, tiret, tiret bas.</small>
+
+      <label for="reg-password">Mot de passe</label>
+      <input id="reg-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+      <small>8 caractères minimum.</small>
+
+      <label for="reg-password2">Confirmer le mot de passe</label>
+      <input id="reg-password2" name="password2" type="password" autocomplete="new-password" required>
+
+      <button type="submit">Créer mon compte</button>
+    </form>
+
+    <label class="afficher-mdp"><input type="checkbox" id="afficher-mdp"> Afficher les mots de passe</label>
+  </main>
+
+  <script src="login.js"></script>
+</body>
+</html>

@@ -38,6 +38,10 @@ services:
       # "db" = nom du service ci-dessus, résolu par le réseau Docker
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       BOOKS_DIR: /database/books
+      # Authentification (valeurs par défaut si absentes du .env)
+      SESSION_DAYS: ${SESSION_DAYS:-7}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}          # true uniquement si le site est servi en HTTPS
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}  # false = inscriptions fermées (comptes créés par script)
     volumes:
       - ./database/books:/database/books
     depends_on:

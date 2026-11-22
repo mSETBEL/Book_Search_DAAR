@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" class="auth-pending">
 <head>
   <meta charset="utf-8">
   <!-- pour bon affichage sur telephone -->
@@ -11,6 +11,10 @@
 
   <!-- en tete -->
   <header>
+    <div class="barre-utilisateur">
+      <span>Connecté : <strong id="nom-utilisateur"></strong></span>
+      <button type="button" id="btn-deconnexion" class="btn-secondaire">Se déconnecter</button>
+    </div>
     <h1><a href="/" id="lien-accueil">Bibliothèque de Farah, Melissa &amp; Sofija</a></h1>
 
     <form id="form-recherche">

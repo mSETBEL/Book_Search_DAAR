@@ -2,8 +2,31 @@
 // accès serveur 
 async function api(chemin) {
     const reponse = await fetch("/api" + chemin);
+    if (reponse.status === 401) {          // session absente ou expirée : retour à la page de connexion
+        window.location.replace("/login.html");
+        return { error: "unauthorized", message: "Connexion requise." };
+    }
     return await reponse.json();
 }
+
+// ===== AUTHENTIFICATION =====
+// La page reste invisible (classe auth-pending) tant que la session n'est pas confirmée.
+(async function verifierSession() {
+  try {
+    const reponse = await fetch("/api/auth/me");
+    if (!reponse.ok) { window.location.replace("/login.html"); return; }
+    const utilisateur = await reponse.json();
+    document.getElementById("nom-utilisateur").textContent = utilisateur.username;
+    document.documentElement.classList.remove("auth-pending");
+  } catch (e) {
+    window.location.replace("/login.html");
+  }
+})();
+
+document.getElementById("btn-deconnexion").addEventListener("click", async () => {
+  await fetch("/api/auth/logout", { method: "POST" }).catch(() => { });
+  window.location.replace("/login.html");
+});
 
 // Affiche une seule vue et cache les autres
 function afficher(idVue) {

@@ -365,3 +365,26 @@ aside h2 { margin-bottom: 12px; }
   html { scroll-behavior: auto; }
   button { transition: none; }
 }
+
+/* --- Authentification --- */
+/* contenu masqué tant que la session n'est pas vérifiée (évite un flash avant redirection) */
+.auth-pending body { visibility: hidden; }
+
+.barre-utilisateur {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin: -6px 0 12px;
+  color: var(--texte-doux);
+  font-size: 0.9rem;
+}
+
+.btn-secondaire {
+  min-height: 34px;
+  padding: 6px 12px;
+  color: var(--texte);
+  background: var(--surface);
+  border: 1px solid var(--bordure);
+}
+.btn-secondaire:hover { color: #fff; }

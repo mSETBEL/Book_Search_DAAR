@@ -18,6 +18,7 @@ from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 
 from scripts import tokenizer
+from app import auth 
 
 # ============================================================
 # Configuration
@@ -31,6 +32,11 @@ NB_SUGGESTIONS = 5
 MAX_VERIF_PHRASE = 50   # livres vérifiés au maximum par Boyer-Moore pour une phrase
 
 app = FastAPI(title="Moteur de recherche DAAR")
+
+# --- Authentification : toutes les routes /api/* exigent une session valide (sauf /api/auth/*, /api/health)
+auth.init_schema()                      # crée les tables users/sessions si elles n'existent pas
+app.include_router(auth.router)         # /api/auth/register, login, logout, me, check, config
+app.middleware("http")(auth.auth_middleware)
 
 # ============================================================
 # Outils
