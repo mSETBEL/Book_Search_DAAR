@@ -60,6 +60,11 @@ Pour arrêter les conteneurs sans supprimer les données de la base :
 docker compose down
 ```
 
+
+## Partie authentification 
+Pour créer un utilisateur : 
+docker compose run --rm backend python -m scripts.create_user alice
+
 ## TO DO LIST 
 - partie algos (backend) :
   - implementer recherche simple : lookup dans l’index
