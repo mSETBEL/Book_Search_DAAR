@@ -63,7 +63,9 @@ docker compose down
 
 ## Partie authentification 
 Pour créer un utilisateur : 
+```bash
 docker compose run --rm backend python -m scripts.create_user alice
+```
 
 ## TO DO LIST 
 - partie algos (backend) :
