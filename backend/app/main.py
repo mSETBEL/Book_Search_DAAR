@@ -131,29 +131,47 @@ def candidats_regex_text(conn, regex):
             livres.append(b)
     return livres
 
-def classer_texte(livres):
-    """Classe les livres par occurrences du regex dans le texte (lecture complète)."""
-    if not livres :
+PAGERANK_WEIGHT = 0.3  # score = (1 - w) * occurrences/max + w * pagerank/max
+
+
+def classer_texte(livres, pagerank_weight=PAGERANK_WEIGHT):
+    """Classe les livres du scope « text » : occurrences du regex combinées au PageRank.
+
+    score dans [0, 1] = (1 - w) * occurrences / maximum des occurrences
+                      + w * pagerank / maximum du pagerank.
+    Si le graphe n'est pas calculé (PageRank nul ou absent), w = 0 :
+    le classement se fait uniquement sur les occurrences.
+    """
+    if not livres:
         return []
-    return sorted(livres, key=lambda l: (l["occurrences"], l["centrality"] or 0),
-                      reverse=True)
+    max_occ = max(l["occurrences"] for l in livres) or 1
+    max_pr = max((l["centrality"] or 0) for l in livres)
+    w = pagerank_weight if max_pr > 0 else 0.0
+    for l in livres:
+        pr = (l["centrality"] or 0) / max_pr if w else 0.0
+        l["score"] = round((1 - w) * l["occurrences"] / max_occ + w * pr, 4)
+    return sorted(livres, key=lambda l: (l["score"], l["occurrences"]), reverse=True)
 
 def classer(livres, nb_termes):
     """Auteur > titre > occurrences ; le PageRank départage les égalités.
  
-    score dans [0, 1] = 0.6 * part des mots trouvés dans l'auteur
-                      + 0.3 * part des mots trouvés dans le titre
+    score dans [0, 1] = 0.55 * part des mots trouvés dans l'auteur
+                      + 0.28 * part des mots trouvés dans le titre
                       + 0.1 * occurrences / maximum des occurrences.
+                      + 0.07 * pagerank 
     0.6 > 0.3 + 0.1 et 0.3 > 0.1 : pour une requête d'un mot, l'ordre est
     exactement « auteur, puis titre, puis occurrences ».
     """
     if not livres:
         return []
     max_occ = max(l["occurrences"] for l in livres) or 1
+    max_pr = max((l["centrality"] or 0) for l in livres) or 1
     for l in livres:
-        l["score"] = round(0.6 * l["author_hits"] / nb_termes
-                           + 0.3 * l["title_hits"] / nb_termes
-                           + 0.1 * l["occurrences"] / max_occ, 4)
+        pr = (l["centrality"] or 0) / max_pr
+        l["score"] = round(0.55 * l["author_hits"] / nb_termes
+                           + 0.28 * l["title_hits"] / nb_termes
+                           + 0.10 * l["occurrences"] / max_occ
+                           + 0.07 * pr, 4)
     return sorted(livres, key=lambda l: (l["score"], l["centrality"] or 0),
                   reverse=True)
 
