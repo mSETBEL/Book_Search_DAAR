@@ -60,11 +60,25 @@ Pour arrêter les conteneurs sans supprimer les données de la base :
 docker compose down
 ```
 
-
 ## Partie authentification 
 Pour créer un utilisateur : 
 ```bash
 docker compose run --rm backend python -m scripts.create_user alice
+```
+
+## Partie tests de performances 
+ Pour lancer les tests
+```bash
+Si ce n'est pas encore fait: 
+python3 -m venv venv && source venv/bin/activate
+
+pip install -r backend/requirements.txt -r benchmarks/requirements-bench.txt
+
+# PostgreSQL dédié aux mesures, même version et mêmes réglages par défaut que docker-compose.yml.
+# Port 55432 pour ne pas gêner la vraie base.
+docker run -d --name daar-bench-pg -e POSTGRES_PASSWORD=bench -p 55432:5432 postgres:16-alpine
+Lancer tous les tests
+bash benchmarks/run_all.sh
 ```
 
 ## TO DO LIST 
