@@ -14,8 +14,10 @@
     <p class="sous-titre">Connectez-vous pour accéder au moteur de recherche.</p>
 
     <div class="onglets" role="tablist">
-      <button type="button" role="tab" id="onglet-connexion" aria-selected="true" class="onglet actif">Connexion</button>
-      <button type="button" role="tab" id="onglet-inscription" aria-selected="false" class="onglet">Créer un compte</button>
+      <button type="button" role="tab" id="onglet-connexion" aria-selected="true" aria-controls="form-connexion"
+        class="onglet actif">Connexion</button>
+      <button type="button" role="tab" id="onglet-inscription" aria-selected="false" aria-controls="form-inscription"
+        class="onglet">Créer un compte</button>
     </div>
 
     <p id="message" class="message" role="alert" hidden></p>
@@ -27,6 +29,7 @@
 
       <label for="login-password">Mot de passe</label>
       <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+      <label class="afficher-mdp"><input type="checkbox" class="case-mdp"> Afficher le mot de passe</label>
 
       <button type="submit">Se connecter</button>
     </form>
@@ -44,11 +47,11 @@
 
       <label for="reg-password2">Confirmer le mot de passe</label>
       <input id="reg-password2" name="password2" type="password" autocomplete="new-password" required>
+      <label class="afficher-mdp"><input type="checkbox" class="case-mdp"> Afficher le mot de passe</label>
 
       <button type="submit">Créer mon compte</button>
     </form>
-
-    <label class="afficher-mdp"><input type="checkbox" id="afficher-mdp"> Afficher les mots de passe</label>
+    
   </main>
 
   <script src="login.js"></script>

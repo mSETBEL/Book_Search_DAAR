@@ -1,43 +1,102 @@
 /* Page de connexion / inscription (réutilise les variables de style.css) */
+
+/* L'attribut hidden doit toujours l'emporter, même si style.css donne un display aux boutons ou formulaires */
+[hidden] {
+  display: none !important;
+}
+
+/* Toute la hauteur de l'écran, pour centrer la carte verticalement */
 .page-login {
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* hauteur réelle sur mobile, barre d'adresse comprise */
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 24px 16px;
+  box-sizing: border-box;
 }
 
+/* Largeur qui suit l'écran : 100 % sur téléphone, environ 40 % de l'écran ensuite,
+   entre 440 et 600 px */
 .carte-login {
   width: 100%;
-  max-width: 440px;
+  max-width: clamp(440px, 40vw, 600px);
   margin: 0;
-  padding: 32px 28px;
+  padding: clamp(24px, 4vw, 44px) clamp(20px, 4vw, 48px);
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid var(--bordure);
   border-radius: 20px;
   box-shadow: var(--ombre);
+  box-sizing: border-box;
 }
 
-.carte-login h1 { margin-bottom: 8px; font-size: clamp(1.35rem, 5vw, 1.8rem); }
-.sous-titre { margin: 0 0 20px; color: var(--texte-doux); }
+.carte-login h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.35rem, 2.2vw + 0.6rem, 2rem);
+  line-height: 1.2;
+}
 
-.onglets { display: flex; gap: 8px; margin-bottom: 18px; }
+.sous-titre {
+  margin: 0 0 24px;
+  color: var(--texte-doux);
+}
+
+.onglets {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
 
 .onglet {
   flex: 1;
+  min-height: 44px;
   color: var(--texte);
   background: var(--surface);
   border: 1px solid var(--bordure);
 }
-.onglet:hover { background: var(--surface-forte); transform: none; }
-.onglet.actif { color: #fff; background: var(--primaire); border-color: var(--primaire); }
 
-.carte-login form { gap: 8px; }
-.carte-login label { font-weight: 600; font-size: 0.92rem; }
-.carte-login small { margin-top: -4px; color: var(--texte-doux); }
-.carte-login form > button { margin-top: 10px; }
+.onglet:hover {
+  background: var(--surface-forte);
+  transform: none;
+}
 
-input[type="password"],
+.onglet.actif {
+  color: #fff;
+  background: var(--primaire);
+  border-color: var(--primaire);
+}
+
+/* Formulaire toujours en colonne : style.css passe les formulaires en ligne
+   sur grand écran (barre de recherche), ce qui écrasait la carte */
+.carte-login form {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.carte-login label {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.carte-login small {
+  margin-top: -4px;
+  color: var(--texte-doux);
+  font-size: 0.85rem;
+}
+
+.carte-login form>button {
+  margin-top: 12px;
+  min-height: 48px;
+}
+
+.carte-login input[type="password"],
 .carte-login input[type="text"] {
+  width: 100%;
   min-height: 46px;
   padding: 10px 13px;
   font: inherit;
@@ -46,8 +105,10 @@ input[type="password"],
   border: 1px solid var(--bordure);
   border-radius: 10px;
   outline: none;
+  box-sizing: border-box;
 }
-input[type="password"]:focus,
+
+.carte-login input[type="password"]:focus,
 .carte-login input[type="text"]:focus {
   border-color: var(--primaire);
   box-shadow: 0 0 0 3px rgba(47, 118, 87, 0.13);
@@ -61,6 +122,26 @@ input[type="password"]:focus,
   background: #fdeeee;
   border: 1px solid #f3c6c6;
 }
-.message.info { color: var(--primaire-fonce); background: #eef7f2; border-color: #cfe5d9; }
 
-.afficher-mdp { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-weight: 400 !important; color: var(--texte-doux); }
+.message.info {
+  color: var(--primaire-fonce);
+  background: #eef7f2;
+  border-color: #cfe5d9;
+}
+
+/* Case à cocher : ligne normale, pas en gras comme les autres libellés */
+.carte-login .afficher-mdp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-weight: 400;
+  color: var(--texte-doux);
+  cursor: pointer;
+}
+
+.afficher-mdp input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}

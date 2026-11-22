@@ -28,15 +28,23 @@ function choisirOnglet(connexion) {
   ongletConnexion.setAttribute("aria-selected", connexion);
   ongletInscription.setAttribute("aria-selected", !connexion);
   montrer("");
+  // curseur dans le premier champ du formulaire affiché
+  (connexion ? formConnexion : formInscription).querySelector("input").focus();
 }
 ongletConnexion.addEventListener("click", () => choisirOnglet(true));
 ongletInscription.addEventListener("click", () => choisirOnglet(false));
 
-document.getElementById("afficher-mdp").addEventListener("change", (e) => {
-  for (const champ of document.querySelectorAll("input[name^='password']")) {
-    champ.type = e.target.checked ? "text" : "password";
-  }
-});
+// Une case "Afficher le mot de passe" dans chaque formulaire
+const casesMdp = document.querySelectorAll(".case-mdp");
+for (const caseMdp of casesMdp) {
+  caseMdp.addEventListener("change", () => {
+    for (const champ of document.querySelectorAll("input[name^='password']")) {
+      champ.type = caseMdp.checked ? "text" : "password";
+    }
+    // Les deux cases restent dans le même état, quel que soit l'onglet
+    for (const autre of casesMdp) autre.checked = caseMdp.checked;
+  });
+}
 
 // Envoie les identifiants ; en cas de succès le serveur pose le cookie de session
 async function envoyer(chemin, username, password, bouton) {
@@ -52,8 +60,9 @@ async function envoyer(chemin, username, password, bouton) {
       window.location.replace("/");
       return;
     }
-    // erreurs de l'API : {error, message} ; erreurs de validation FastAPI : {detail}
-    montrer(donnees.message || "Requête invalide.");
+    // erreurs de l'API : {error, message} ; erreurs de validation FastAPI : {detail: [...]}
+    const detail = Array.isArray(donnees.detail) ? donnees.detail[0]?.msg : donnees.detail;
+    montrer(donnees.message || detail || "Requête invalide.");
   } catch (e) {
     montrer("Serveur injoignable, réessayez.");
   } finally {

@@ -23,9 +23,18 @@ async function api(chemin) {
   }
 })();
 
-document.getElementById("btn-deconnexion").addEventListener("click", async () => {
-  await fetch("/api/auth/logout", { method: "POST" }).catch(() => { });
-  window.location.replace("/login.html");
+const boutonDeconnexion = document.getElementById("btn-deconnexion");
+boutonDeconnexion.addEventListener("click", async () => {
+  boutonDeconnexion.disabled = true;
+  try {
+    const reponse = await fetch("/api/auth/logout", { method: "POST" });
+    if (!reponse.ok) throw new Error("Échec de la déconnexion");
+    window.location.replace("/login.html");
+  } catch {
+    boutonDeconnexion.disabled = false;
+    boutonDeconnexion.textContent = "Réessayer la déconnexion";
+    boutonDeconnexion.title = "Le serveur n'a pas confirmé la déconnexion.";
+  }
 });
 
 // Affiche une seule vue et cache les autres
