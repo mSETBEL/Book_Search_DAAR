@@ -10,8 +10,7 @@
 python3 -m venv venv
 source venv/bin/activate 
 pip install -r requirements.txt
-# .. script de téléchargement des livres en local, work in progress 
-# pour l'instant on fait avec les livres qu'on a 
+python scripts/hf_download.py --objectif <nbre de livres> # script de téléchargement des livres en local
 docker compose up --build -d
 docker compose run --rm backend python scripts/load_books.py
 docker compose run --rm backend python -m scripts.build_graph
@@ -50,6 +49,10 @@ dans un navigateur: `http://<@IP de la machine sur laquelle le serveur tourne>`
 Pour lancer une requête sur la base de données:
 ```bash
 docker compose exec db psql -U daar -d daar -c <requête SQL>
+```
+Pour voir toutes les tables de la base de données:
+```bash
+docker compose exec db psql -U daar -d daar -c "\dt;"
 ```
 
 Pour arrêter les conteneurs sans supprimer les données de la base : 
